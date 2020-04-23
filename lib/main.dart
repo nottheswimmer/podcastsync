@@ -20,7 +20,7 @@ class MyApp extends StatelessWidget {
           // or simply save your changes to "hot reload" in a Flutter IDE).
           // Notice that the counter didn't reset back to zero; the application
           // is not restarted.
-          primarySwatch: Colors.red,
+          primarySwatch: Colors.brown,
           // This makes the visual density adapt to the platform that you run
           // the app on. For desktop platforms, the controls will be smaller and
           // closer together (more dense) than on mobile platforms.
@@ -119,19 +119,42 @@ class _MyHomePageState extends State<MyHomePage> {
             // Here we take the value from the MyHomePage object that was created by
             // the App.build method, and use it to set our appbar title.
             title: Text(widget.title),
-            bottom: TabBar(
-              tabs: [
-                Tab(icon: Icon(Icons.home)),
-                Tab(icon: Icon(Icons.search)),
-                Tab(icon: Icon(Icons.library_music)),
-              ],
-            )),
+        ),
+      bottomNavigationBar: ColoredTabBar(
+        Colors.brown,
+        TabBar(tabs: [
+          Tab(icon: Icon(Icons.home), text: "Home",),
+          Tab(icon: Icon(Icons.search), text: "Discover"),
+          Tab(icon: Icon(Icons.library_music), text: "Library"),
+        ],
+        labelColor: Colors.black87,
+        unselectedLabelColor: Colors.white,
+        indicatorColor: Colors.black87,
+      )),
         body: TabBarView(
           children: [
             _HomePage(),
             Icon(Icons.search),
             Icon(Icons.library_music),
           ], // This trailing comma makes auto-formatting nicer for build methods.
-        ));
+        ),
+    );
   }
 }
+
+class ColoredTabBar extends Container implements PreferredSizeWidget {
+  ColoredTabBar(this.color, this.tabBar);
+
+  final Color color;
+  final TabBar tabBar;
+
+  @override
+  Size get preferredSize => tabBar.preferredSize;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    color: color,
+    child: tabBar,
+  );
+}
+
