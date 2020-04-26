@@ -1,4 +1,7 @@
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
+
+import 'package:podcastsync/episode.dart';
 
 void main() {
   runApp(MyApp());
@@ -53,6 +56,15 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
+  Future<List<Episode>> futureFeed;
+  AudioPlayer audioPlayer;
+
+  @override
+  void initState() {
+    super.initState();
+    futureFeed = searchSpreakerEpisodes('nightvale');
+    audioPlayer = AudioPlayer();
+  }
 
   void _incrementCounter() {
     setState(() {
@@ -88,8 +100,20 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
 
           children: <Widget>[
+            FutureBuilder<List<Episode>>(
+              future: futureFeed,
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  return snapshot.data[0].image;
+                } else if (snapshot.hasError) {
+                  return Text("${snapshot.error}");
+                }
+                // By default, show a loading spinner.
+                return CircularProgressIndicator();
+              },
+            ),
             Text(
-              'You have clicked the button this many times:',
+              'Clicked this many times: ',
             ),
             Text(
               '$_counter',
@@ -106,6 +130,54 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
+  Widget _SearchPage() {
+    return Scaffold(
+        body: Center(
+      child: FutureBuilder<List<Episode>>(
+        future: futureFeed,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            List<Episode> data = snapshot.data;
+            return _episodeListView(data);
+          } else if (snapshot.hasError) {
+            return Text("${snapshot.error}");
+          }
+          // By default, show a loading spinner.
+          return CircularProgressIndicator();
+        },
+      ),
+    ));
+  }
+
+  play(String url) async {
+    int result = await audioPlayer.play(url);
+    if (result == 1) {
+      // success
+    }
+  }
+
+  ListTile _episodeTile(String title, String subtitle, Image icon, String download_url) => ListTile(
+        title: Text(title,
+            style: TextStyle(
+              fontWeight: FontWeight.w500,
+              fontSize: 20,
+            )),
+        subtitle: Text(subtitle),
+        leading: icon,
+        onTap: () {
+          play(download_url);
+        },
+      );
+
+  ListView _episodeListView(List<Episode> data) {
+    return ListView.builder(
+        itemCount: data.length,
+        itemBuilder: (context, index) {
+          return _episodeTile(data[index].title, data[index].show, data[index].image,
+              data[index].download_url);
+        });
+  }
+
   @override
   Widget build(BuildContext context) {
     // This method is rerun every time setState is called, for instance as done
@@ -115,29 +187,33 @@ class _MyHomePageState extends State<MyHomePage> {
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
     return Scaffold(
-        appBar: AppBar(
-            // Here we take the value from the MyHomePage object that was created by
-            // the App.build method, and use it to set our appbar title.
-            title: Text(widget.title),
-        ),
+      appBar: AppBar(
+        // Here we take the value from the MyHomePage object that was created by
+        // the App.build method, and use it to set our appbar title.
+        title: Text(widget.title),
+      ),
       bottomNavigationBar: ColoredTabBar(
-        Colors.brown,
-        TabBar(tabs: [
-          Tab(icon: Icon(Icons.home), text: "Home",),
-          Tab(icon: Icon(Icons.search), text: "Discover"),
-          Tab(icon: Icon(Icons.library_music), text: "Library"),
-        ],
-        labelColor: Colors.black87,
-        unselectedLabelColor: Colors.white,
-        indicatorColor: Colors.black87,
-      )),
-        body: TabBarView(
-          children: [
-            _HomePage(),
-            Icon(Icons.search),
-            Icon(Icons.library_music),
-          ], // This trailing comma makes auto-formatting nicer for build methods.
-        ),
+          Colors.brown,
+          TabBar(
+            tabs: [
+              Tab(
+                icon: Icon(Icons.home),
+                text: "Home",
+              ),
+              Tab(icon: Icon(Icons.search), text: "Discover"),
+              Tab(icon: Icon(Icons.library_music), text: "Library"),
+            ],
+            labelColor: Colors.black87,
+            unselectedLabelColor: Colors.white,
+            indicatorColor: Colors.black87,
+          )),
+      body: TabBarView(
+        children: [
+          _HomePage(),
+          _SearchPage(),
+          Icon(Icons.library_music),
+        ], // This trailing comma makes auto-formatting nicer for build methods.
+      ),
     );
   }
 }
@@ -153,8 +229,7 @@ class ColoredTabBar extends Container implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-    color: color,
-    child: tabBar,
-  );
+        color: color,
+        child: tabBar,
+      );
 }
-
