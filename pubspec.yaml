@@ -23,7 +23,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  audioplayers: ^0.15.1
+  video_player: ^0.10.9
+  chewie_audio: ^1.0.0
   http: ^0.12.0
 
 

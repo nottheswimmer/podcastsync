@@ -1,7 +1,8 @@
-import 'package:audioplayers/audioplayers.dart';
+import 'package:chewie_audio/chewie_audio.dart';
 import 'package:flutter/material.dart';
 
 import 'package:podcastsync/episode.dart';
+import 'package:video_player/video_player.dart';
 
 void main() {
   runApp(MyApp());
@@ -36,6 +37,7 @@ class MyApp extends StatelessWidget {
   }
 }
 
+
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key, this.title}) : super(key: key);
 
@@ -57,13 +59,23 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
   Future<List<Episode>> futureFeed;
-  AudioPlayer audioPlayer;
+  VideoPlayerController _controller;
+  ChewieAudioController chewieController;
+  ChewieAudio playerWidget;
+  Future<void> _initializeVideoPlayerFuture;
 
   @override
   void initState() {
     super.initState();
     futureFeed = searchSpreakerEpisodes('nightvale');
-    audioPlayer = AudioPlayer();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+
+    super.dispose();
   }
 
   void _incrementCounter() {
@@ -150,13 +162,31 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   play(String url) async {
-    int result = await audioPlayer.play(url);
-    if (result == 1) {
-      // success
+    if (chewieController != null) {
+      chewieController.dispose();
     }
+
+    if (_controller != null) {
+      _controller.dispose();
+    }
+
+    _controller = VideoPlayerController.network(url)
+      ..initialize().then((_) {
+        chewieController = ChewieAudioController(
+          videoPlayerController: _controller,
+          autoPlay: true,
+          looping: false,
+          allowMuting: false,
+        );
+        playerWidget = ChewieAudio(controller: chewieController);
+        setState(() {});
+      }
+      );
   }
 
-  ListTile _episodeTile(String title, String subtitle, Image icon, String download_url) => ListTile(
+  ListTile _episodeTile(
+          String title, String subtitle, Image icon, String download_url) =>
+      ListTile(
         title: Text(title,
             style: TextStyle(
               fontWeight: FontWeight.w500,
@@ -166,6 +196,7 @@ class _MyHomePageState extends State<MyHomePage> {
         leading: icon,
         onTap: () {
           play(download_url);
+          setState(() {});
         },
       );
 
@@ -173,8 +204,8 @@ class _MyHomePageState extends State<MyHomePage> {
     return ListView.builder(
         itemCount: data.length,
         itemBuilder: (context, index) {
-          return _episodeTile(data[index].title, data[index].show, data[index].image,
-              data[index].download_url);
+          return _episodeTile(data[index].title, data[index].show,
+              data[index].image, data[index].download_url);
         });
   }
 
@@ -187,33 +218,41 @@ class _MyHomePageState extends State<MyHomePage> {
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
     return Scaffold(
-      appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      bottomNavigationBar: ColoredTabBar(
-          Colors.brown,
-          TabBar(
-            tabs: [
-              Tab(
-                icon: Icon(Icons.home),
-                text: "Home",
-              ),
-              Tab(icon: Icon(Icons.search), text: "Discover"),
-              Tab(icon: Icon(Icons.library_music), text: "Library"),
-            ],
-            labelColor: Colors.black87,
-            unselectedLabelColor: Colors.white,
-            indicatorColor: Colors.black87,
-          )),
-      body: TabBarView(
-        children: [
-          _HomePage(),
-          _SearchPage(),
-          Icon(Icons.library_music),
-        ], // This trailing comma makes auto-formatting nicer for build methods.
-      ),
+        appBar: AppBar(
+          // Here we take the value from the MyHomePage object that was created by
+          // the App.build method, and use it to set our appbar title.
+          title: Text(widget.title),
+        ),
+        bottomNavigationBar: ColoredTabBar(
+            Colors.brown,
+            TabBar(
+              tabs: [
+                Tab(
+                  icon: Icon(Icons.home),
+                  text: "Home",
+                ),
+                Tab(icon: Icon(Icons.search), text: "Discover"),
+                Tab(icon: Icon(Icons.library_music), text: "Library"),
+              ],
+              labelColor: Colors.black87,
+              unselectedLabelColor: Colors.white,
+              indicatorColor: Colors.black87,
+            )),
+        body: TabBarView(
+          children: [
+            _HomePage(),
+            _SearchPage(),
+            Icon(Icons.library_music),
+          ], // This trailing comma makes auto-formatting nicer for build methods.
+        ),
+        persistentFooterButtons: <Widget>[
+          Visibility(
+              visible: _controller != null,
+              child: Container(
+                  color: Colors.white,
+                  height: 60,
+                  child: playerWidget)
+          )]
     );
   }
 }
