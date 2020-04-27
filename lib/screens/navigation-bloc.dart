@@ -3,9 +3,8 @@ import 'package:audio_service/audio_service.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:podcastsync/bloc/bloc.dart';
 import 'package:podcastsync/components/audio.dart';
+import 'package:podcastsync/models/episode.dart';
 import 'package:podcastsync/screens/navigation-events.dart';
-
-import '../models/episode.dart';
 
 class NavigationBloc extends Bloc {
 //  StreamSubscription _audioPlayerStateSubscription;

@@ -1,5 +1,4 @@
 import 'package:intl/intl.dart';
-import 'package:audio_service/audio_service.dart';
 import 'package:flappy_search_bar/flappy_search_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:podcastsync/bloc/bloc-prov.dart';
