@@ -2,6 +2,7 @@ import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:podcastsync/bloc/bloc-prov.dart';
+import 'package:podcastsync/components/audio.dart';
 import 'package:podcastsync/screens/navigation-events.dart';
 import 'package:podcastsync/screens/navigation-bloc.dart';
 
@@ -70,28 +71,38 @@ class NavigationScreen extends StatelessWidget {
           // the App.build method, and use it to set our appbar title.
           title: Text(title),
         ),
-        bottomNavigationBar: ColoredTabBar(
-            Colors.brown,
-            TabBar(
-              tabs: [
-                Tab(
-                  icon: Icon(Icons.home),
-                  text: "Home",
-                ),
-                Tab(icon: Icon(Icons.search), text: "Discover"),
-                Tab(icon: Icon(Icons.library_music), text: "Library"),
-              ],
-              labelColor: Colors.black87,
-              unselectedLabelColor: Colors.white,
-              indicatorColor: Colors.black87,
-            )),
+        bottomNavigationBar: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: <Widget>[
+            MediaPlayer(),
+            ColoredTabBar(
+                Colors.brown,
+                TabBar(
+                  tabs: [
+                    Tab(
+                      icon: Icon(Icons.home),
+                      text: "Home",
+                    ),
+                    Tab(icon: Icon(Icons.search), text: "Discover"),
+                    Tab(icon: Icon(Icons.library_music), text: "Library"),
+                  ],
+                  labelColor: Colors.black87,
+                  unselectedLabelColor: Colors.white,
+                  indicatorColor: Colors.black87,
+                )),
+          ],
+        ),
         body: TabBarView(
           children: [
             _HomePage(),
             _SearchPage(),
             Icon(Icons.library_music),
           ], // This trailing comma makes auto-formatting nicer for build methods.
-        )
+        ),
+      // Should the body resize when the keyboard appears?
+      resizeToAvoidBottomInset: true,
+      extendBody: false,
     );
   }
 }
