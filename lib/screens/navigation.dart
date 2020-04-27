@@ -1,3 +1,4 @@
+import 'package:intl/intl.dart';
 import 'package:audio_service/audio_service.dart';
 import 'package:flappy_search_bar/flappy_search_bar.dart';
 import 'package:flutter/material.dart';
@@ -6,6 +7,7 @@ import 'package:podcastsync/bloc/bloc-prov.dart';
 import 'package:podcastsync/components/audio.dart';
 import 'package:podcastsync/screens/navigation-events.dart';
 import 'package:podcastsync/screens/navigation-bloc.dart';
+import 'package:podcastsync/show.dart';
 
 import '../episode.dart';
 
@@ -58,7 +60,7 @@ class NavigationScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final NavigationBloc _navigationBloc = BlocProvider.of(context);
+    // final NavigationBloc _navigationBloc = BlocProvider.of(context);
 
     // This method is rerun every time setState is called, for instance as done
     // by the _incrementCounter method above.
@@ -188,18 +190,69 @@ class _SearchPage extends StatelessWidget {
     final NavigationBloc _navigationBloc = BlocProvider.of(context);
     return Scaffold(
         body: SafeArea(
-      child: SearchBar<Episode>(
-        onSearch: searchSpreakerEpisodes,
-        searchBarPadding: EdgeInsets.symmetric(horizontal: 10),
-        headerPadding: EdgeInsets.symmetric(horizontal: 10),
-        listPadding: EdgeInsets.symmetric(horizontal: 10),
-        onItemFound: (Episode episode, int index) {
-          return _episodeTile(_navigationBloc, episode.title,
-          episode.show, episode.image, episode.toMediaItem());
-        }
-      ),
+      child: DefaultTabController(
+          length: 2,
+          child: Scaffold(
+            bottomNavigationBar: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: <Widget>[
+                ColoredTabBar(
+                    Colors.white,
+                    TabBar(
+                      tabs: [
+                        Tab(
+                          text: "Shows",
+                        ),
+                        Tab(text: "Episodes"),
+                      ],
+                      labelColor: Colors.black,
+                      unselectedLabelColor: Colors.grey,
+                      indicatorColor: Colors.grey,
+                    )),
+              ],
+            ),
+            body: TabBarView(
+              children: <Widget>[
+                SearchBar<Show>(
+                    onSearch: searchSpreakerShows,
+                    emptyWidget: Text('No shows to display'),
+                    placeHolder: Center(child: Text('Search for shows')),
+                    searchBarPadding: EdgeInsets.symmetric(horizontal: 10),
+                    headerPadding: EdgeInsets.symmetric(horizontal: 10),
+                    listPadding: EdgeInsets.symmetric(horizontal: 10),
+                    onItemFound: (Show show, int index) {
+                      String lastEpisodeTimeString = DateFormat.yMd().add_jm().format(show.last_episode_at.toLocal());
+                      return _showTile(_navigationBloc, show.title, 'Last episode at $lastEpisodeTimeString', show.image);
+                    }),
+                SearchBar<Episode>(
+                    onSearch: searchSpreakerEpisodes,
+                    emptyWidget: Text('No episodes to display'),
+                    placeHolder: Center(child: Text('Search for episodes')),
+                    searchBarPadding: EdgeInsets.symmetric(horizontal: 10),
+                    headerPadding: EdgeInsets.symmetric(horizontal: 10),
+                    listPadding: EdgeInsets.symmetric(horizontal: 10),
+                    onItemFound: (Episode episode, int index) {
+                      return _episodeTile(_navigationBloc, episode.title,
+                          episode.show, episode.image, episode.toMediaItem());
+                    }),
+              ],
+            ),
+          )),
     ));
   }
+
+  ListTile _showTile(NavigationBloc _navigationBloc, String title,
+      String subtitle, Image icon) =>
+      ListTile(
+          title: Text(title,
+              style: TextStyle(
+                fontWeight: FontWeight.w500,
+                fontSize: 20,
+              )),
+          subtitle: Text(subtitle),
+          leading: icon,
+          onTap: () => print('TODO: Show episodes of this show'));
 
   ListTile _episodeTile(NavigationBloc _navigationBloc, String title,
           String subtitle, Image icon, MediaItem mediaItem) =>
@@ -213,16 +266,6 @@ class _SearchPage extends StatelessWidget {
           leading: icon,
           onTap: () => _navigationBloc.playerEventSink
               .add(AudioStreamChangeEvent(mediaItem)));
-
-  ListView _episodeListView(
-      NavigationBloc _navigationBloc, List<Episode> data) {
-    return ListView.builder(
-        itemCount: data.length,
-        itemBuilder: (context, index) {
-          return _episodeTile(_navigationBloc, data[index].title,
-              data[index].show, data[index].image, data[index].toMediaItem());
-        });
-  }
 }
 
 class ColoredTabBar extends Container implements PreferredSizeWidget {
