@@ -5,15 +5,25 @@ import 'package:podcastsync/components/audio.dart';
 import 'package:podcastsync/components/episodes.dart';
 import 'package:podcastsync/models/episode.dart';
 import 'package:podcastsync/screens/navigation-bloc.dart';
-import 'package:podcastsync/screens/pages/search.dart';
 
 Widget showTile(
-    NavigationBloc _navigationBloc,
-    String title,
-    String subtitle,
-    Image icon,
-    Future<List<Episode>> episodes,
-    BuildContext context) =>
+    /// Navigation bloc which provides audio playback controls
+    final NavigationBloc _navigationBloc,
+
+    /// The text to display in the show's title area
+    final String title,
+
+    /// The text to display in the show's subtitle area
+    final String subtitle,
+
+    /// The icon to display next to the show
+    final Image icon,
+
+    /// A future which can be awaited to request the episodes of the show
+    final Future<List<Episode>> episodes,
+
+    /// Build context to pass to the show episodes popup
+    final BuildContext context) =>
     ListTile(
         title: Text(title,
             style: TextStyle(

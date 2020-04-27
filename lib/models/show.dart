@@ -7,11 +7,22 @@ import 'episode.dart';
 
 
 class Show {
+  /// Title of the show
   final String title;
+
+  /// Description of the show
   final String description;
+
+  /// A future which can be awaited to request the episodes of the show
   final Future<List<Episode>> episodes;
+
+  /// The image for the show
   final Image image;
+
+  /// The date of the show's most recent episode
   final DateTime last_episode_at;
+
+  /// The image URI for the show
   final String image_uri;
 
   Show(
@@ -22,7 +33,7 @@ class Show {
         this.last_episode_at,
         this.image_uri});
 
-  // Image cache
+  /// Image cache
   static var images = new HashMap<String, Image>();
 
   factory Show.fromSpreakerJson(Map<String, dynamic> json) {

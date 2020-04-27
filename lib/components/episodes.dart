@@ -4,8 +4,21 @@ import 'package:podcastsync/models/episode.dart';
 import 'package:podcastsync/screens/navigation-bloc.dart';
 import 'package:podcastsync/screens/navigation-events.dart';
 
-ListTile episodeTile(NavigationBloc _navigationBloc, String title,
-    String subtitle, Image icon, MediaItem mediaItem) =>
+ListTile episodeTile(
+    /// Navigation bloc which provides audio playback controls
+    final NavigationBloc _navigationBloc,
+
+    /// The text to display in the episode's title area
+    final String title,
+
+    /// The text to display in the episode's subtitle area
+    final String subtitle,
+
+    /// The icon to display next to the episode
+    final Image icon,
+
+    /// The media item to provide to the audio playback service on tap
+    final MediaItem mediaItem) =>
     ListTile(
         title: Text(title,
             style: TextStyle(
@@ -17,11 +30,17 @@ ListTile episodeTile(NavigationBloc _navigationBloc, String title,
         onTap: () => _navigationBloc.playerEventSink
             .add(AudioStreamChangeEvent(mediaItem)));
 
-ListView episodeListView(NavigationBloc _navigationBloc, List<Episode> data) {
+ListView episodeListView(
+    /// Navigation bloc which provides audio playback controls
+    final NavigationBloc _navigationBloc,
+
+    /// List of episodes that display in the ListView
+    final List<Episode> episodes)
+{
   return ListView.builder(
-      itemCount: data.length,
+      itemCount: episodes.length,
       itemBuilder: (context, index) {
-        return episodeTile(_navigationBloc, data[index].title,
-            data[index].show, data[index].image, data[index].toMediaItem());
+        return episodeTile(_navigationBloc, episodes[index].title,
+            episodes[index].show, episodes[index].image, episodes[index].toMediaItem());
       });
 }

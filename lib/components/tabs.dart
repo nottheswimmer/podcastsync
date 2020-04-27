@@ -4,7 +4,10 @@ import 'package:flutter/widgets.dart';
 class ColoredTabBar extends Container implements PreferredSizeWidget {
   ColoredTabBar(this.color, this.tabBar);
 
+  /// Color of the container to wrap around the tab bar
   final Color color;
+
+  /// The tab bar
   final TabBar tabBar;
 
   @override

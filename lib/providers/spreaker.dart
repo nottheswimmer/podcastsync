@@ -20,7 +20,10 @@ const List<String> FILTERED_SHOWS = [
   'The Sounds of Passionate Sex (NSFW ASMR)',
 ];
 
-Future<List<Episode>> searchSpreakerEpisodes(String searchTerm) async {
+Future<List<Episode>> searchSpreakerEpisodes(
+  /// Search term input by user used to search for episodes
+  final String searchTerm,
+) async {
   final uri = Uri.https(API_SPREAKER_HOST, API_SPREAKER_SEARCH,
       {'type': 'episodes', 'q': searchTerm});
   final response = await http.get(uri);
@@ -36,8 +39,10 @@ Future<List<Episode>> searchSpreakerEpisodes(String searchTerm) async {
         }
         episodes.add(new Episode.fromSpreakerJson(item));
       } catch (exception, stackTrace) {
-        log('Could not parse episode $item due to $exception', stackTrace: stackTrace);
-      };
+        log('Could not parse episode $item due to $exception',
+            stackTrace: stackTrace);
+      }
+      ;
     }
     return episodes;
   } else {
@@ -48,7 +53,12 @@ Future<List<Episode>> searchSpreakerEpisodes(String searchTerm) async {
 }
 
 Future<List<Episode>> searchSpreakerEpisodesByShow(
-    int showId, String showTitle) async {
+  /// Spreaker show ID used to look up show episodes
+  final int showId,
+
+  /// Show episode title used to build episode item
+  final String showTitle,
+) async {
   final uri =
       Uri.https(API_SPREAKER_HOST, '$API_SPREAKER_SHOWS/$showId/episodes');
   final response = await http.get(uri);
@@ -63,7 +73,8 @@ Future<List<Episode>> searchSpreakerEpisodesByShow(
         item['show']['title'] = showTitle;
         episodes.add(new Episode.fromSpreakerJson(item));
       } catch (exception, stackTrace) {
-        log('Could not parse episode $item due to $exception', stackTrace: stackTrace);
+        log('Could not parse episode $item due to $exception',
+            stackTrace: stackTrace);
       }
     }
     return episodes;
@@ -74,9 +85,15 @@ Future<List<Episode>> searchSpreakerEpisodesByShow(
   }
 }
 
-Future<List<Show>> searchSpreakerShows(String searchTerm) async {
+Future<List<Show>> searchSpreakerShows(
+  /// Search term input by user used to search for shows
+  final String searchTerm,
+) async {
+  // build uri of the spreaker API to query for shows
   final uri = Uri.https(API_SPREAKER_HOST, API_SPREAKER_SEARCH,
       {'type': 'shows', 'q': searchTerm});
+
+  // Get response from spreaker API containing shows
   final response = await http.get(uri);
 
   if (response.statusCode == 200) {
@@ -85,11 +102,11 @@ Future<List<Show>> searchSpreakerShows(String searchTerm) async {
     List<dynamic> jsonItems = jsonResponse["response"]["items"];
     for (Map<String, dynamic> item in jsonItems) {
       try {
-        if (FILTERED_SHOWS.contains(item['title']))
-          continue;
+        if (FILTERED_SHOWS.contains(item['title'])) continue;
         shows.add(new Show.fromSpreakerJson(item));
       } catch (exception, stackTrace) {
-        log('Could not parse show $item due to $exception', stackTrace: stackTrace);
+        log('Could not parse show $item due to $exception',
+            stackTrace: stackTrace);
       }
     }
     return shows;

@@ -6,8 +6,6 @@ import 'package:podcastsync/blocs/pref-bloc.dart';
 
 import 'package:podcastsync/routes.dart';
 
-import 'blocs/queue-bloc.dart';
-
 void main() {
   runApp(PodcastSync());
 }
@@ -20,7 +18,6 @@ class PodcastSync extends StatelessWidget {
         blocProviders: <BlocProvider>[
           BlocProvider<AuthBloc>(bloc: AuthBloc()),
           BlocProvider<PrefBloc>(bloc: PrefBloc()),
-          BlocProvider<QueueBloc>(bloc: QueueBloc()),
         ],
         child: MaterialApp(
           title: 'Podcast Sync',

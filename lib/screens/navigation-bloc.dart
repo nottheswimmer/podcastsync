@@ -1,42 +1,40 @@
 import 'dart:async';
 import 'package:audio_service/audio_service.dart';
-import 'package:just_audio/just_audio.dart';
 import 'package:podcastsync/bloc/bloc.dart';
 import 'package:podcastsync/components/audio.dart';
-import 'package:podcastsync/models/episode.dart';
 import 'package:podcastsync/screens/navigation-events.dart';
 
 class NavigationBloc extends Bloc {
-//  StreamSubscription _audioPlayerStateSubscription;
-//
-//  Stream<String> get example => _exampleSubject.stream;
-//
-//  Sink<String> get exampleSink => _exampleSubject.sink;
-//  final StreamController<String> _exampleSubject = StreamController<String>();
-
   NavigationBloc() {
-    // BEGIN COUNTER STUFF
-    _counter = 0;
+    _counter = 0; // TODO: Remove demo code
     // Whenever there is a new event, we want to map it to a new state
-    _counterEventController.stream.listen(_handleCounterEvent);
-    // END COUNTER STUFF
+    _counterEventController.stream
+        .listen(_handleCounterEvent); // TODO: Remove demo code
+
+    // Stream events sent to the player controller to the _handlePlayerEvent
+    //  function
     _playerController.stream.listen(_handlePlayerEvent);
   }
 
-  // EXPERIMENTAL
-  List<Episode> showEpisodeList;
-
-  final _player = AudioPlayer();
-
-  // Not needed currently?
-  // final _audioStreamStateController = StreamController<AudioPlayer>.broadcast();
+  // Used by this module to control audio stream
   final _playerController = StreamController<AudioStreamEvent>.broadcast();
 
+  // Sink exposed to pages via the navigationBloc to update the current media
   Sink<AudioStreamEvent> get playerEventSink => _playerController.sink;
 
-  Future<void> _handlePlayerEvent(AudioStreamEvent event) async {
+  /// Handle events sent to the playerEventSink
+  Future<void> _handlePlayerEvent(
+      /// Event sent to the playerEventSink
+      final AudioStreamEvent event
+      ) async {
+
+    // If the event is an audio change event (others could be supported)...
     if (event is AudioStreamChangeEvent) {
+      // If the service isn't running...
       if (!AudioService.running) {
+        // start it and skip once (the service will start with no media running
+        //   and one skip is a hack to fix a bug where the media won't play
+        //   right away)
         await AudioService.start(
           backgroundTaskEntrypoint: audioPlayerTaskEntrypoint,
           androidNotificationChannelName: 'Podcast Sync',
@@ -47,16 +45,18 @@ class NavigationBloc extends Bloc {
         await AudioService.skipToNext();
       }
 
+      // Add the media item from the audio change event
       await AudioService.addQueueItem(event.mediaItem);
 
+      // Skip forward until the media item is the current item.
+      // TODO: Ensure no bug could cause an infinite loop here?
       while (AudioService.currentMediaItem != event.mediaItem) {
         await AudioService.skipToNext();
       }
     }
   }
-  // END EXPERIMENTAL
 
-  // BEGIN COUNTER STUFF
+  // TODO: Remove demo code below
   int _counter;
   final _counterStateController = StreamController<int>.broadcast();
 
@@ -76,18 +76,13 @@ class NavigationBloc extends Bloc {
     inCounter.add(_counter);
   }
 
-  // END COUNTER STUFF
+  // TODO: Remove demo code above
 
   void dispose() {
-    // _exampleSubject.close();
-
-    // MORE COUNTER STUFF
-    _counterStateController.close();
-    _counterEventController.close();
-    // END MORE COUNTER STUFF
+    _counterStateController.close(); // TODO: Remove demo code
+    _counterEventController.close(); // TODO: Remove demo code
 
     _playerController.close();
     // _playerStateController.close();
-
   }
 }

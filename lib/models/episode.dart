@@ -4,12 +4,25 @@ import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 
 class Episode {
+  /// Title of the episode
   final String title;
-  final int duration; // in ms
+
+  /// Duration, in milliseconds
+  final int duration;
+
+  /// Image for the episode
   final Image image;
+
+  /// Image URL for the episode (for background service playback)
   final String image_uri;
+
+  /// Date the episode was published
   final DateTime published;
+
+  /// Title of the show the episode belongs to
   final String show;
+
+  /// Audio download URL for the episode
   final String download_url;
 
   Episode(
