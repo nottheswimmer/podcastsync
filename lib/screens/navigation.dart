@@ -222,8 +222,11 @@ class _SearchPage extends StatelessWidget {
                     headerPadding: EdgeInsets.symmetric(horizontal: 10),
                     listPadding: EdgeInsets.symmetric(horizontal: 10),
                     onItemFound: (Show show, int index) {
-                      String lastEpisodeTimeString = DateFormat.yMd().add_jm().format(show.last_episode_at.toLocal());
-                      return _showTile(_navigationBloc, show.title, 'Last episode at $lastEpisodeTimeString', show.image);
+                      String lastEpisodeTimeString = DateFormat.yMd()
+                          .add_jm()
+                          .format(show.last_episode_at.toLocal());
+                      return _showTile(_navigationBloc, show.title,
+                          'Last episode at $lastEpisodeTimeString', show.image);
                     }),
                 SearchBar<Episode>(
                     onSearch: searchSpreakerEpisodes,
@@ -243,7 +246,7 @@ class _SearchPage extends StatelessWidget {
   }
 
   ListTile _showTile(NavigationBloc _navigationBloc, String title,
-      String subtitle, Image icon) =>
+          String subtitle, Image icon) =>
       ListTile(
           title: Text(title,
               style: TextStyle(
