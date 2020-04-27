@@ -1,3 +1,4 @@
+import 'dart:collection';
 import 'dart:convert';
 import 'dart:developer';
 
@@ -8,6 +9,16 @@ import 'package:podcastsync/models/show.dart';
 const String API_SPREAKER_HOST = 'api.spreaker.com';
 const String API_SPREAKER_SEARCH = '/v2/search';
 const String API_SPREAKER_SHOWS = '/v2/shows';
+
+// TODO: Populate via service rather than hardcoding filters
+const List<String> FILTERED_SHOWS = [
+  'The Greatest Sounds of Sex',
+  'Best XXX and Porn Sounds of All Time',
+  'The Sounds of Pornography and Sex',
+  'XXX Sex Sounds With Your Mom',
+  'Eclectically Sexual Sounds',
+  'The Sounds of Passionate Sex (NSFW ASMR)',
+];
 
 Future<List<Episode>> searchSpreakerEpisodes(String searchTerm) async {
   final uri = Uri.https(API_SPREAKER_HOST, API_SPREAKER_SEARCH,
@@ -20,6 +31,9 @@ Future<List<Episode>> searchSpreakerEpisodes(String searchTerm) async {
     List<dynamic> jsonItems = jsonResponse["response"]["items"];
     for (Map<String, dynamic> item in jsonItems) {
       try {
+        if (FILTERED_SHOWS.contains(item["show"]["title"])) {
+          continue;
+        }
         episodes.add(new Episode.fromSpreakerJson(item));
       } catch (exception, stackTrace) {
         log('Could not parse episode $item due to $exception', stackTrace: stackTrace);
@@ -71,6 +85,8 @@ Future<List<Show>> searchSpreakerShows(String searchTerm) async {
     List<dynamic> jsonItems = jsonResponse["response"]["items"];
     for (Map<String, dynamic> item in jsonItems) {
       try {
+        if (FILTERED_SHOWS.contains(item['title']))
+          continue;
         shows.add(new Show.fromSpreakerJson(item));
       } catch (exception, stackTrace) {
         log('Could not parse show $item due to $exception', stackTrace: stackTrace);
