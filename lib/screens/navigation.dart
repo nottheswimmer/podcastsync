@@ -5,11 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:podcastsync/bloc/bloc-prov.dart';
 import 'package:podcastsync/components/audio.dart';
+import 'package:podcastsync/models/episode.dart';
+import 'package:podcastsync/models/show.dart';
+import 'package:podcastsync/providers/spreaker.dart';
 import 'package:podcastsync/screens/navigation-events.dart';
 import 'package:podcastsync/screens/navigation-bloc.dart';
-import 'package:podcastsync/show.dart';
-
-import '../episode.dart';
 
 class Navigation extends StatefulWidget {
   @override
