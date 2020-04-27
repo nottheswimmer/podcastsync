@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:podcastsync/bloc/bloc-prov.dart';
+import 'package:podcastsync/components/audio.dart';
 import 'package:podcastsync/components/episodes.dart';
 import 'package:podcastsync/models/episode.dart';
 import 'package:podcastsync/screens/navigation-bloc.dart';
@@ -48,5 +49,8 @@ Widget showTile(
                             Navigator.pop(context);
                           },
                         ),
+                        persistentFooterButtons: <Widget>[
+                          MediaPlayer(),
+                        ],
                       ))));
         });
