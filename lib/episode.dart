@@ -1,6 +1,7 @@
 import 'dart:collection';
 import 'dart:convert';
 
+import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -11,13 +12,14 @@ class Episode {
   final String title;
   final int duration; // in ms
   final Image image;
+  final String image_uri;
   final DateTime published;
   final String show;
   final String download_url;
 
   Episode({
     this.title, this.duration, this.image, this.published, this.show,
-    this.download_url,
+    this.download_url, this.image_uri
   });
 
   // Image cache
@@ -38,10 +40,21 @@ class Episode {
     return Episode(
         title: json['title'],
         duration: json['duration'],
+        image_uri: image_url,
         image: image,
         published: DateTime.parse(json['published_at']),
         show: json['show']['title'],
         download_url: json['download_url'],
+    );
+  }
+
+  MediaItem toMediaItem() {
+    return MediaItem(
+      id: this.download_url,
+      album: this.show,
+      title: this.title,
+      artUri: this.image_uri,
+      duration: this.duration,
     );
   }
 }
