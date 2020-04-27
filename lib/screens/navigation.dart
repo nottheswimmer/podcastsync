@@ -1,4 +1,5 @@
 import 'package:audio_service/audio_service.dart';
+import 'package:flappy_search_bar/flappy_search_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:podcastsync/bloc/bloc-prov.dart';
@@ -66,40 +67,40 @@ class NavigationScreen extends StatelessWidget {
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
     return Scaffold(
-        appBar: AppBar(
-          // Here we take the value from the MyHomePage object that was created by
-          // the App.build method, and use it to set our appbar title.
-          title: Text(title),
-        ),
-        bottomNavigationBar: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: <Widget>[
-            MediaPlayer(),
-            ColoredTabBar(
-                Colors.brown,
-                TabBar(
-                  tabs: [
-                    Tab(
-                      icon: Icon(Icons.home),
-                      text: "Home",
-                    ),
-                    Tab(icon: Icon(Icons.search), text: "Discover"),
-                    Tab(icon: Icon(Icons.library_music), text: "Library"),
-                  ],
-                  labelColor: Colors.black87,
-                  unselectedLabelColor: Colors.white,
-                  indicatorColor: Colors.black87,
-                )),
-          ],
-        ),
-        body: TabBarView(
-          children: [
-            _HomePage(),
-            _SearchPage(),
-            Icon(Icons.library_music),
-          ], // This trailing comma makes auto-formatting nicer for build methods.
-        ),
+      appBar: AppBar(
+        // Here we take the value from the MyHomePage object that was created by
+        // the App.build method, and use it to set our appbar title.
+        title: Text(title),
+      ),
+      bottomNavigationBar: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: <Widget>[
+          MediaPlayer(),
+          ColoredTabBar(
+              Colors.brown,
+              TabBar(
+                tabs: [
+                  Tab(
+                    icon: Icon(Icons.home),
+                    text: "Home",
+                  ),
+                  Tab(icon: Icon(Icons.search), text: "Discover"),
+                  Tab(icon: Icon(Icons.library_music), text: "Library"),
+                ],
+                labelColor: Colors.black87,
+                unselectedLabelColor: Colors.white,
+                indicatorColor: Colors.black87,
+              )),
+        ],
+      ),
+      body: TabBarView(
+        children: [
+          _HomePage(),
+          _SearchPage(),
+          Icon(Icons.library_music),
+        ], // This trailing comma makes auto-formatting nicer for build methods.
+      ),
       // Should the body resize when the keyboard appears?
       resizeToAvoidBottomInset: true,
       extendBody: false,
@@ -141,7 +142,8 @@ class clickerWidget extends StatelessWidget {
 
   FloatingActionButton _clickerIncrementButton() {
     return FloatingActionButton(
-      onPressed: () => _navigationBloc.counterEventSink.add(CounterIncrementEvent()),
+      onPressed: () =>
+          _navigationBloc.counterEventSink.add(CounterIncrementEvent()),
       tooltip: 'Increment',
       child: Icon(Icons.add),
     );
@@ -176,9 +178,7 @@ class _clickerDisplayWidget extends StatelessWidget {
                   ),
                 ],
               );
-            }
-            )
-    );
+            }));
   }
 }
 
@@ -187,19 +187,16 @@ class _SearchPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final NavigationBloc _navigationBloc = BlocProvider.of(context);
     return Scaffold(
-        body: Center(
-      child: FutureBuilder<List<Episode>>(
-        future: _navigationBloc.futureFeed,
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            List<Episode> data = snapshot.data;
-            return _episodeListView(_navigationBloc, data);
-          } else if (snapshot.hasError) {
-            return Text("${snapshot.error}");
-          }
-          // By default, show a loading spinner.
-          return CircularProgressIndicator();
-        },
+        body: SafeArea(
+      child: SearchBar<Episode>(
+        onSearch: searchSpreakerEpisodes,
+        searchBarPadding: EdgeInsets.symmetric(horizontal: 10),
+        headerPadding: EdgeInsets.symmetric(horizontal: 10),
+        listPadding: EdgeInsets.symmetric(horizontal: 10),
+        onItemFound: (Episode episode, int index) {
+          return _episodeTile(_navigationBloc, episode.title,
+          episode.show, episode.image, episode.toMediaItem());
+        }
       ),
     ));
   }
@@ -207,18 +204,15 @@ class _SearchPage extends StatelessWidget {
   ListTile _episodeTile(NavigationBloc _navigationBloc, String title,
           String subtitle, Image icon, MediaItem mediaItem) =>
       ListTile(
-        title: Text(title,
-            style: TextStyle(
-              fontWeight: FontWeight.w500,
-              fontSize: 20,
-            )
-        ),
-        subtitle: Text(subtitle),
-        leading: icon,
-        onTap: () => _navigationBloc.playerEventSink.add(
-            AudioStreamChangeEvent(mediaItem)
-        )
-      );
+          title: Text(title,
+              style: TextStyle(
+                fontWeight: FontWeight.w500,
+                fontSize: 20,
+              )),
+          subtitle: Text(subtitle),
+          leading: icon,
+          onTap: () => _navigationBloc.playerEventSink
+              .add(AudioStreamChangeEvent(mediaItem)));
 
   ListView _episodeListView(
       NavigationBloc _navigationBloc, List<Episode> data) {
