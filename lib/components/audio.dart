@@ -33,19 +33,6 @@ MediaControl stopControl = MediaControl(
   action: MediaAction.stop,
 );
 
-void main() => runApp(new MyApp());
-
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Audio Service Demo',
-      theme: ThemeData(primarySwatch: Colors.blue),
-      home: AudioServiceWidget(child: MediaPlayer()),
-    );
-  }
-}
-
 class MediaPlayer extends StatelessWidget {
   /// Tracks the position while the user drags the seek bar.
   final BehaviorSubject<double> _dragPositionSubject =
