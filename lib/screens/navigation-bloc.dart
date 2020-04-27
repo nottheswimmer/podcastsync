@@ -25,7 +25,6 @@ class NavigationBloc extends Bloc {
   }
 
   // EXPERIMENTAL
-  Future<List<Episode>> futureFeed = searchSpreakerEpisodes('nightvale');
   final _player = AudioPlayer();
 
   // Not needed currently?

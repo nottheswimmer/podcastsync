@@ -17,10 +17,14 @@ class Episode {
   final String show;
   final String download_url;
 
-  Episode({
-    this.title, this.duration, this.image, this.published, this.show,
-    this.download_url, this.image_uri
-  });
+  Episode(
+      {this.title,
+      this.duration,
+      this.image,
+      this.published,
+      this.show,
+      this.download_url,
+      this.image_uri});
 
   // Image cache
   static var images = new HashMap<String, Image>();
@@ -38,13 +42,13 @@ class Episode {
       images.putIfAbsent(image_url, () => image);
     }
     return Episode(
-        title: json['title'],
-        duration: json['duration'],
-        image_uri: image_url,
-        image: image,
-        published: DateTime.parse(json['published_at']),
-        show: json['show']['title'],
-        download_url: json['download_url'],
+      title: json['title'],
+      duration: json['duration'],
+      image_uri: image_url,
+      image: image,
+      published: DateTime.parse(json['published_at']),
+      show: json['show']['title'],
+      download_url: json['download_url'],
     );
   }
 
@@ -62,8 +66,6 @@ class Episode {
 Future<List<Episode>> searchSpreakerEpisodes(String searchTerm) async {
   final uri = Uri.https(API_SPREAKER_HOST, API_SPREAKER_SEARCH,
       {'type': 'episodes', 'q': searchTerm});
-  print(uri);
-  print('Hello world!');
   final response = await http.get(uri);
 
   if (response.statusCode == 200) {
