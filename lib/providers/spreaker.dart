@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:podcastsync/models/episode.dart';
 import 'package:http/http.dart' as http;
@@ -18,7 +19,11 @@ Future<List<Episode>> searchSpreakerEpisodes(String searchTerm) async {
     Map<String, dynamic> jsonResponse = json.decode(response.body);
     List<dynamic> jsonItems = jsonResponse["response"]["items"];
     for (Map<String, dynamic> item in jsonItems) {
-      episodes.add(new Episode.fromSpreakerJson(item));
+      try {
+        episodes.add(new Episode.fromSpreakerJson(item));
+      } catch (exception, stackTrace) {
+        log('Could not parse episode $item due to $exception', stackTrace: stackTrace);
+      };
     }
     return episodes;
   } else {
@@ -39,9 +44,13 @@ Future<List<Episode>> searchSpreakerEpisodesByShow(
     Map<String, dynamic> jsonResponse = json.decode(response.body);
     List<dynamic> jsonItems = jsonResponse["response"]["items"];
     for (Map<String, dynamic> item in jsonItems) {
-      item['show'] = {};
-      item['show']['title'] = showTitle;
-      episodes.add(new Episode.fromSpreakerJson(item));
+      try {
+        item['show'] = {};
+        item['show']['title'] = showTitle;
+        episodes.add(new Episode.fromSpreakerJson(item));
+      } catch (exception, stackTrace) {
+        log('Could not parse episode $item due to $exception', stackTrace: stackTrace);
+      }
     }
     return episodes;
   } else {
@@ -61,7 +70,11 @@ Future<List<Show>> searchSpreakerShows(String searchTerm) async {
     Map<String, dynamic> jsonResponse = json.decode(response.body);
     List<dynamic> jsonItems = jsonResponse["response"]["items"];
     for (Map<String, dynamic> item in jsonItems) {
-      shows.add(new Show.fromSpreakerJson(item));
+      try {
+        shows.add(new Show.fromSpreakerJson(item));
+      } catch (exception, stackTrace) {
+        log('Could not parse show $item due to $exception', stackTrace: stackTrace);
+      }
     }
     return shows;
   } else {
