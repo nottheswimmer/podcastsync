@@ -55,7 +55,6 @@ class NavigationBloc extends Bloc {
       }
     }
   }
-
   // END EXPERIMENTAL
 
   // BEGIN COUNTER STUFF
