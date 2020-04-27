@@ -225,8 +225,13 @@ class _SearchPage extends StatelessWidget {
                       String lastEpisodeTimeString = DateFormat.yMd()
                           .add_jm()
                           .format(show.last_episode_at.toLocal());
-                      return _showTile(_navigationBloc, show.title,
-                          'Last episode at $lastEpisodeTimeString', show.image);
+                      return _showTile(
+                          _navigationBloc,
+                          show.title,
+                          'Last episode at $lastEpisodeTimeString',
+                          show.image,
+                          show.episodes,
+                          context);
                     }),
                 SearchBar<Episode>(
                     onSearch: searchSpreakerEpisodes,
@@ -245,8 +250,13 @@ class _SearchPage extends StatelessWidget {
     ));
   }
 
-  ListTile _showTile(NavigationBloc _navigationBloc, String title,
-          String subtitle, Image icon) =>
+  Widget _showTile(
+          NavigationBloc _navigationBloc,
+          String title,
+          String subtitle,
+          Image icon,
+          Future<List<Episode>> episodes,
+          BuildContext context) =>
       ListTile(
           title: Text(title,
               style: TextStyle(
@@ -255,21 +265,49 @@ class _SearchPage extends StatelessWidget {
               )),
           subtitle: Text(subtitle),
           leading: icon,
-          onTap: () => print('TODO: Show episodes of this show'));
-
-  ListTile _episodeTile(NavigationBloc _navigationBloc, String title,
-          String subtitle, Image icon, MediaItem mediaItem) =>
-      ListTile(
-          title: Text(title,
-              style: TextStyle(
-                fontWeight: FontWeight.w500,
-                fontSize: 20,
-              )),
-          subtitle: Text(subtitle),
-          leading: icon,
-          onTap: () => _navigationBloc.playerEventSink
-              .add(AudioStreamChangeEvent(mediaItem)));
+          onTap: () async {
+            return Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => BlocProvider(
+                        bloc: _navigationBloc,
+                        child: Scaffold(
+                          body: SizedBox(
+                              child: FutureBuilder<List<Episode>>(
+                                  future: episodes,
+                                  builder: (context, snapshot) {
+                                    if (snapshot.hasData) {
+                                      List<Episode> data = snapshot.data;
+                                      return _episodeListView(
+                                          _navigationBloc, data);
+                                    } else if (snapshot.hasError) {
+                                      return Text("${snapshot.error}");
+                                    }
+                                    // By default, show a loading spinner.
+                                    return CircularProgressIndicator();
+                                  })),
+                          floatingActionButton: FloatingActionButton(
+                            child: Icon(Icons.arrow_back),
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                          ),
+                        ))));
+          });
 }
+
+ListTile _episodeTile(NavigationBloc _navigationBloc, String title,
+        String subtitle, Image icon, MediaItem mediaItem) =>
+    ListTile(
+        title: Text(title,
+            style: TextStyle(
+              fontWeight: FontWeight.w500,
+              fontSize: 20,
+            )),
+        subtitle: Text(subtitle),
+        leading: icon,
+        onTap: () => _navigationBloc.playerEventSink
+            .add(AudioStreamChangeEvent(mediaItem)));
 
 class ColoredTabBar extends Container implements PreferredSizeWidget {
   ColoredTabBar(this.color, this.tabBar);
@@ -285,4 +323,13 @@ class ColoredTabBar extends Container implements PreferredSizeWidget {
         color: color,
         child: tabBar,
       );
+}
+
+ListView _episodeListView(NavigationBloc _navigationBloc, List<Episode> data) {
+  return ListView.builder(
+      itemCount: data.length,
+      itemBuilder: (context, index) {
+        return _episodeTile(_navigationBloc, data[index].title,
+            data[index].show, data[index].image, data[index].toMediaItem());
+      });
 }

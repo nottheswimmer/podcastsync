@@ -25,6 +25,8 @@ class NavigationBloc extends Bloc {
   }
 
   // EXPERIMENTAL
+  List<Episode> showEpisodeList;
+
   final _player = AudioPlayer();
 
   // Not needed currently?

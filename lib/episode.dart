@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 
 const String API_SPREAKER_HOST = 'api.spreaker.com';
 const String API_SPREAKER_SEARCH = '/v2/search';
+const String API_SPREAKER_SHOWS = '/v2/shows';
 
 class Episode {
   final String title;
@@ -79,6 +80,28 @@ Future<List<Episode>> searchSpreakerEpisodes(String searchTerm) async {
   } else {
     // If the server did not return a 200 OK response,
     // then throw an exception.
-    throw Exception('Failed to load spreaker episodes');
+    throw Exception('Failed to load spreaker episodes from $uri');
+  }
+}
+
+
+Future<List<Episode>> searchSpreakerEpisodesByShow(int showId, String showTitle) async {
+  final uri = Uri.https(API_SPREAKER_HOST, '$API_SPREAKER_SHOWS/$showId/episodes');
+  final response = await http.get(uri);
+
+  if (response.statusCode == 200) {
+    var episodes = new List<Episode>();
+    Map<String, dynamic> jsonResponse = json.decode(response.body);
+    List<dynamic> jsonItems = jsonResponse["response"]["items"];
+    for (Map<String, dynamic> item in jsonItems) {
+      item['show'] = {};
+      item['show']['title'] = showTitle;
+      episodes.add(new Episode.fromSpreakerJson(item));
+    }
+    return episodes;
+  } else {
+    // If the server did not return a 200 OK response,
+    // then throw an exception.
+    throw Exception('Failed to load spreaker episodes from $uri');
   }
 }

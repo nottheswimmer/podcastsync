@@ -4,6 +4,8 @@ import 'dart:convert';
 import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
 
+import 'episode.dart';
+
 const String API_SPREAKER_HOST = 'api.spreaker.com';
 const String API_SPREAKER_SEARCH = '/v2/search';
 
@@ -11,7 +13,7 @@ const String API_SPREAKER_SEARCH = '/v2/search';
 class Show {
   final String title;
   final String description;
-  final int show_id;
+  final Future<List<Episode>> episodes;
   final Image image;
   final DateTime last_episode_at;
   final String image_uri;
@@ -19,7 +21,7 @@ class Show {
   Show(
       {this.title,
         this.description,
-        this.show_id,
+        this.episodes,
         this.image,
         this.last_episode_at,
         this.image_uri});
@@ -41,7 +43,7 @@ class Show {
     }
     return Show(
       title: json['title'],
-      show_id: json['show_id'],
+      episodes: searchSpreakerEpisodesByShow(json['show_id'], json['title']),
       image_uri: image_url,
       image: image,
       last_episode_at: DateTime.parse(json['last_episode_at']),
