@@ -5,6 +5,7 @@ import 'dart:async';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:marquee/marquee.dart';
 import 'package:rxdart/rxdart.dart';
 
 MediaControl playControl = MediaControl(
@@ -73,7 +74,16 @@ class MediaPlayer extends StatelessWidget {
                       ),
                     ],
                   ),
-                if (mediaItem?.title != null) Text(mediaItem.title),
+                if (mediaItem?.title != null) Container(
+                    height: 20,
+                    width: MediaQuery.of(context).size.width,
+                    child: Marquee(
+                        text: mediaItem.title,
+                      velocity: 50,
+                      pauseAfterRound: Duration(seconds: 1),
+                      blankSpace: MediaQuery.of(context).size.width,
+                      startPadding: 15,
+                    )),
                 if (basicState == BasicPlaybackState.none) ...[
                   // audioPlayerButton(),
                 ] else
