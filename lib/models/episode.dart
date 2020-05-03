@@ -39,14 +39,13 @@ class Episode {
 
   // To generic JSON for storage
   Map<String, dynamic> toJson() => {
-    'title': this.title,
-    'duration': this.duration,
-    'published': this.published.toIso8601String(),
-    'show': this.show,
-    'download_url': this.download_url,
-    'image_uri': this.image_uri
-  };
-
+        'title': this.title,
+        'duration': this.duration,
+        'published': this.published.toIso8601String(),
+        'show': this.show,
+        'download_url': this.download_url,
+        'image_uri': this.image_uri
+      };
 
   // From generic Storage JSON
   factory Episode.fromJson(Map<String, dynamic> json) {

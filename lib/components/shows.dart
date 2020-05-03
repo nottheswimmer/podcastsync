@@ -12,27 +12,27 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 Widget showTile(
 
-    /// Navigation bloc which provides audio playback controls
-    final NavigationBloc _navigationBloc,
+        /// Navigation bloc which provides audio playback controls
+        final NavigationBloc _navigationBloc,
 
-    /// The text to display in the show's title area
-    final String title,
+        /// The text to display in the show's title area
+        final String title,
 
-    /// The text to display in the show's subtitle area
-    final String subtitle,
+        /// The text to display in the show's subtitle area
+        final String subtitle,
 
-    /// The icon to display next to the show
-    final Image icon,
+        /// The icon to display next to the show
+        final Image icon,
 
-    /// A future which can be awaited to request the episodes of the show
-    final Future<List<Episode>> episodes,
+        /// A future which can be awaited to request the episodes of the show
+        final Future<List<Episode>> episodes,
 
-    // I can probably get rid of the other parameters and just use this.
-    //    Needed it for subscriptions.
-    final Show show,
+        // I can probably get rid of the other parameters and just use this.
+        //    Needed it for subscriptions.
+        final Show show,
 
-    /// Build context to pass to the show episodes popup
-    final BuildContext context) =>
+        /// Build context to pass to the show episodes popup
+        final BuildContext context) =>
     ListTile(
         title: Text(title,
             style: TextStyle(
@@ -47,50 +47,52 @@ Widget showTile(
           return Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (context) =>
-                      BlocProvider(
-                          bloc: _navigationBloc,
-                          child: Scaffold(
-                            appBar: AppBar(title: Text(title)),
-                            body: SizedBox(
-                                child: FutureBuilder<List<Episode>>(
-                                    future: episodes,
-                                    builder: (context, snapshot) {
-                                      if (snapshot.hasData) {
-                                        List<Episode> data = snapshot.data;
-                                        return episodeListView(
-                                            _navigationBloc,
-                                            data,
-                                            PageStorageKey('searchedEpisodes'));
-                                      } else if (snapshot.hasError) {
-                                        return Text("${snapshot.error}");
-                                      }
-                                      // By default, show a loading spinner.
-                                      return CircularProgressIndicator();
-                                    })),
-                            floatingActionButton: _navigationBloc.subscribedToCurrentshow
+                  builder: (context) => BlocProvider(
+                      bloc: _navigationBloc,
+                      child: Scaffold(
+                        appBar: AppBar(title: Text(title)),
+                        body: SizedBox(
+                            child: FutureBuilder<List<Episode>>(
+                                future: episodes,
+                                builder: (context, snapshot) {
+                                  if (snapshot.hasData) {
+                                    List<Episode> data = snapshot.data;
+                                    return episodeListView(
+                                        _navigationBloc,
+                                        data,
+                                        PageStorageKey('searchedEpisodes'));
+                                  } else if (snapshot.hasError) {
+                                    return Text("${snapshot.error}");
+                                  }
+                                  // By default, show a loading spinner.
+                                  return CircularProgressIndicator();
+                                })),
+                        floatingActionButton:
+                            _navigationBloc.subscribedToCurrentshow
                                 ? FloatingActionButton(
-                              child: Icon(Icons.remove),
-                              onPressed: () async {
-                                await removeShowFromSubscriptions(show);
-                                _navigationBloc.subscribedToCurrentshow = false;
-                                // Update UI
-                                (context as Element).markNeedsBuild();
-                              },
-                            )
+                                    child: Icon(Icons.remove),
+                                    onPressed: () async {
+                                      await removeShowFromSubscriptions(show);
+                                      _navigationBloc.subscribedToCurrentshow =
+                                          false;
+                                      // Update UI
+                                      (context as Element).markNeedsBuild();
+                                    },
+                                  )
                                 : FloatingActionButton(
-                              child: Icon(Icons.add),
-                              onPressed: () async {
-                                await addShowToSubscriptions(show);
-                                _navigationBloc.subscribedToCurrentshow = true;
-                                // Update UI
-                                (context as Element).markNeedsBuild();
-                              },
-                            ),
-                            persistentFooterButtons: <Widget>[
-                              MediaPlayer(),
-                            ],
-                          ))));
+                                    child: Icon(Icons.add),
+                                    onPressed: () async {
+                                      await addShowToSubscriptions(show);
+                                      _navigationBloc.subscribedToCurrentshow =
+                                          true;
+                                      // Update UI
+                                      (context as Element).markNeedsBuild();
+                                    },
+                                  ),
+                        persistentFooterButtons: <Widget>[
+                          MediaPlayer(),
+                        ],
+                      ))));
         });
 
 Future<bool> isSubscribed(Show show) async {
@@ -120,17 +122,17 @@ Future<List<Show>> getSubscriptions() async {
   if (prefs.containsKey('subscriptions')) {
     List<String> subscriptionStringList = prefs.getStringList('subscriptions');
     // Remove instances of the show from the subscriptions list
-    List<dynamic> subscriptionJsonList =
-    subscriptionStringList.map((e) => jsonDecode(e)).toList(growable: false);
+    List<dynamic> subscriptionJsonList = subscriptionStringList
+        .map((e) => jsonDecode(e))
+        .toList(growable: false);
     print('Converted');
     List<Show> subscriptionList =
-    subscriptionJsonList.map((e) => Show.fromJson(e)).toList();
+        subscriptionJsonList.map((e) => Show.fromJson(e)).toList();
     print('made the map');
     return subscriptionList;
   }
   return [];
 }
-
 
 Future addShowToSubscriptions(Show show) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -168,4 +170,3 @@ Future removeShowFromSubscriptions(Show show) async {
     prefs.setStringList('subscriptions', subscriptions);
   }
 }
-

@@ -22,10 +22,9 @@ class NavigationBloc extends Bloc {
 
   /// Handle events sent to the playerEventSink
   Future<void> _handlePlayerEvent(
-      /// Event sent to the playerEventSink
-      final AudioStreamEvent event
-      ) async {
 
+      /// Event sent to the playerEventSink
+      final AudioStreamEvent event) async {
     // If the event is an audio change event (others could be supported)...
     if (event is AudioStreamChangeEvent) {
       // If the service isn't running...
@@ -55,7 +54,6 @@ class NavigationBloc extends Bloc {
       await AudioService.play();
     }
   }
-
 
   void dispose() {
     _playerController.close();

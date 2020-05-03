@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -7,7 +6,6 @@ import 'package:podcastsync/bloc/bloc-prov.dart';
 import 'package:podcastsync/components/episodes.dart';
 import 'package:podcastsync/models/episode.dart';
 import 'package:podcastsync/screens/navigation-bloc.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class HomePage extends StatelessWidget {
   @override
@@ -16,37 +14,6 @@ class HomePage extends StatelessWidget {
     return recentlyPlayedWidget(navigationBloc: _navigationBloc);
   }
 }
-
-//class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
-//  _SliverAppBarDelegate({
-//    @required this.minHeight,
-//    @required this.maxHeight,
-//    @required this.child,
-//  });
-//
-//  final double minHeight;
-//  final double maxHeight;
-//  final Widget child;
-//
-//  @override
-//  double get minExtent => minHeight;
-//
-//  @override
-//  double get maxExtent => max(maxHeight, minHeight);
-//
-//  @override
-//  Widget build(
-//      BuildContext context, double shrinkOffset, bool overlapsContent) {
-//    return new SizedBox.expand(child: child);
-//  }
-//
-//  @override
-//  bool shouldRebuild(_SliverAppBarDelegate oldDelegate) {
-//    return maxHeight != oldDelegate.maxHeight ||
-//        minHeight != oldDelegate.minHeight ||
-//        child != oldDelegate.child;
-//  }
-//}
 
 // Displays one Entry. If the entry has children then it's displayed
 // with an ExpansionTile.

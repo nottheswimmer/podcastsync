@@ -49,67 +49,66 @@ class MediaPlayer extends StatelessWidget {
           final mediaItem = screenState?.mediaItem;
           final state = screenState?.playbackState;
           final basicState = state?.basicState ?? BasicPlaybackState.none;
-          return LayoutBuilder(
-            builder: (context, constraints) {
-              return Container(
-                height: basicState == BasicPlaybackState.none ? 0 : 90,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    if (queue != null && queue.isNotEmpty)
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          IconButton(
-                            icon: Icon(Icons.skip_previous),
-                            iconSize: 32.0,
-                            onPressed: mediaItem == queue.first
-                                ? null
-                                : AudioService.skipToPrevious,
-                          ),
-                          IconButton(
-                            icon: Icon(Icons.skip_next),
-                            iconSize: 32.0,
-                            onPressed: mediaItem == queue.last
-                                ? null
-                                : AudioService.skipToNext,
-                          ),
+          return LayoutBuilder(builder: (context, constraints) {
+            return Container(
+              height: basicState == BasicPlaybackState.none ? 0 : 90,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if (queue != null && queue.isNotEmpty)
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.skip_previous),
+                          iconSize: 32.0,
+                          onPressed: mediaItem == queue.first
+                              ? null
+                              : AudioService.skipToPrevious,
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.skip_next),
+                          iconSize: 32.0,
+                          onPressed: mediaItem == queue.last
+                              ? null
+                              : AudioService.skipToNext,
+                        ),
+                      ],
+                    ),
+                  if (mediaItem?.title != null)
+                    mediaTitle(mediaItem: mediaItem),
+                  if (basicState == BasicPlaybackState.none) ...[
+                    // audioPlayerButton(),
+                  ] else
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        if (basicState != BasicPlaybackState.none &&
+                            basicState != BasicPlaybackState.stopped) ...[
+                          positionIndicator(mediaItem, state),
                         ],
-                      ),
-                    if (mediaItem?.title != null) mediaTitle(mediaItem: mediaItem),
-                    if (basicState == BasicPlaybackState.none) ...[
-                      // audioPlayerButton(),
-                    ] else
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          if (basicState != BasicPlaybackState.none &&
-                              basicState != BasicPlaybackState.stopped) ...[
-                            positionIndicator(mediaItem, state),
-                          ],
-                          if (basicState == BasicPlaybackState.playing)
-                            pauseButton()
-                          else if (basicState == BasicPlaybackState.paused)
-                            playButton()
-                          else if (basicState == BasicPlaybackState.buffering ||
-                              basicState == BasicPlaybackState.skippingToNext ||
-                              basicState == BasicPlaybackState.skippingToPrevious)
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: SizedBox(
-                                width: 32.0,
-                                height: 32.0,
-                                child: CircularProgressIndicator(),
-                              ),
+                        if (basicState == BasicPlaybackState.playing)
+                          pauseButton()
+                        else if (basicState == BasicPlaybackState.paused)
+                          playButton()
+                        else if (basicState == BasicPlaybackState.buffering ||
+                            basicState == BasicPlaybackState.skippingToNext ||
+                            basicState == BasicPlaybackState.skippingToPrevious)
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: SizedBox(
+                              width: 32.0,
+                              height: 32.0,
+                              child: CircularProgressIndicator(),
                             ),
-                          stopButton(),
-                        ],
-                      ),
-                  ],
-                ),
-              );
-            }
-          );
+                          ),
+                        stopButton(),
+                      ],
+                    ),
+                ],
+              ),
+            );
+          });
         });
   }
 
@@ -151,34 +150,32 @@ class MediaPlayer extends StatelessWidget {
       builder: (context, snapshot) {
         double position = snapshot.data ?? state.currentPosition.toDouble();
         double duration = mediaItem?.duration?.toDouble();
-        return Row(
-            children: [
-                getTimeStamp(state),
-                if (duration != null)
-                Container(
-                  width: MediaQuery.of(context).size.width - 200,
-                  child: Slider(
-                    min: 0.0,
-                    max: duration,
-                    value: seekPos ?? max(0.0, min(position, duration)),
-                    onChanged: (value) {
-                      _dragPositionSubject.add(value);
-                    },
-                    onChangeEnd: (value) {
-                      AudioService.seekTo(value.toInt());
-                      // Due to a delay in platform channel communication, there is
-                      // a brief moment after releasing the Slider thumb before the
-                      // new position is broadcast from the platform side. This
-                      // hack is to hold onto seekPos until the next state update
-                      // comes through.
-                      // TODO: Improve this code.
-                      seekPos = value;
-                      _dragPositionSubject.add(null);
-                    },
-        ),
-                ),
-        ]
-        );
+        return Row(children: [
+          getTimeStamp(state),
+          if (duration != null)
+            Container(
+              width: MediaQuery.of(context).size.width - 200,
+              child: Slider(
+                min: 0.0,
+                max: duration,
+                value: seekPos ?? max(0.0, min(position, duration)),
+                onChanged: (value) {
+                  _dragPositionSubject.add(value);
+                },
+                onChangeEnd: (value) {
+                  AudioService.seekTo(value.toInt());
+                  // Due to a delay in platform channel communication, there is
+                  // a brief moment after releasing the Slider thumb before the
+                  // new position is broadcast from the platform side. This
+                  // hack is to hold onto seekPos until the next state update
+                  // comes through.
+                  // TODO: Improve this code.
+                  seekPos = value;
+                  _dragPositionSubject.add(null);
+                },
+              ),
+            ),
+        ]);
       },
     );
   }
@@ -229,7 +226,7 @@ class mediaTitle extends StatelessWidget {
         height: 20,
         width: MediaQuery.of(context).size.width,
         child: Marquee(
-            text: mediaItem.title,
+          text: mediaItem.title,
           velocity: 50,
           pauseAfterRound: Duration(seconds: 1),
           blankSpace: MediaQuery.of(context).size.width,

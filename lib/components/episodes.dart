@@ -10,20 +10,21 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 ListTile episodeTile(
-    /// Navigation bloc which provides audio playback controls
-    final NavigationBloc _navigationBloc,
 
-    /// The text to display in the episode's title area
-    final String title,
+        /// Navigation bloc which provides audio playback controls
+        final NavigationBloc _navigationBloc,
 
-    /// The text to display in the episode's subtitle area
-    final String subtitle,
+        /// The text to display in the episode's title area
+        final String title,
 
-    /// The icon to display next to the episode
-    final Image icon,
+        /// The text to display in the episode's subtitle area
+        final String subtitle,
 
-    /// The media item to provide to the audio playback service on tap
-    final Episode episode) =>
+        /// The icon to display next to the episode
+        final Image icon,
+
+        /// The media item to provide to the audio playback service on tap
+        final Episode episode) =>
     ListTile(
         title: Text(title,
             style: TextStyle(
@@ -36,9 +37,7 @@ ListTile episodeTile(
           _navigationBloc.playerEventSink
               .add(AudioStreamChangeEvent(episode.toMediaItem()));
           await addEpisodeToRecentlyPlayed(episode);
-        }
-
-        );
+        });
 
 Future addEpisodeToRecentlyPlayed(Episode episode) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -60,14 +59,13 @@ Future addEpisodeToRecentlyPlayed(Episode episode) async {
 }
 
 ListView episodeListView(
-    /// Navigation bloc which provides audio playback controls
-    final NavigationBloc _navigationBloc,
+  /// Navigation bloc which provides audio playback controls
+  final NavigationBloc _navigationBloc,
 
-    /// List of episodes that display in the ListView
-    final List<Episode> episodes,
-    final PageStorageKey key,
-    )
-{
+  /// List of episodes that display in the ListView
+  final List<Episode> episodes,
+  final PageStorageKey key,
+) {
   return ListView.builder(
       key: key,
       itemCount: episodes.length,
@@ -78,14 +76,13 @@ ListView episodeListView(
 }
 
 ListView episodeListViewWithHeader(
+
     /// Navigation bloc which provides audio playback controls
     final NavigationBloc _navigationBloc,
 
     /// List of episodes that display in the ListView
     final List<Episode> episodes,
-
-    final String header)
-{
+    final String header) {
   return ListView.builder(
       key: PageStorageKey(header),
       itemCount: episodes.length + 1,
@@ -94,11 +91,13 @@ ListView episodeListViewWithHeader(
           // return the header
           return Padding(
             padding: const EdgeInsets.only(left: 15, top: 10),
-            child: Text(header, style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w500,
-              color: Colors.black54
-            ),),
+            child: Text(
+              header,
+              style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.black54),
+            ),
           );
         }
         index -= 1;
@@ -115,9 +114,9 @@ Future<List<Episode>> getRecentlyPlayed() async {
       : [];
 
   List<dynamic> episodeJsonList =
-  episodeStringList.map((e) => jsonDecode(e)).toList(growable: false);
+      episodeStringList.map((e) => jsonDecode(e)).toList(growable: false);
   List<Episode> episodeList =
-  episodeJsonList.map((e) => Episode.fromJson(e)).toList();
+      episodeJsonList.map((e) => Episode.fromJson(e)).toList();
   return episodeList.reversed.toList();
 }
 
@@ -131,5 +130,4 @@ Future<List<Episode>> getLatestFromSubscriptions() async {
   }
   latest.sort((a, b) => a.published.isBefore(b.published) ? 1 : -1);
   return latest;
-
 }

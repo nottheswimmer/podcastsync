@@ -34,27 +34,26 @@ class Show {
   // Metadata that can differ depending on the provider
   final Map<String, dynamic> provider_metadata;
 
-  Show(
-      {this.title,
-        this.description,
-        this.episodes,
-        this.image,
-        this.last_episode_at,
-        this.image_uri,
-        this.provider,
-        this.provider_metadata,
-      });
+  Show({
+    this.title,
+    this.description,
+    this.episodes,
+    this.image,
+    this.last_episode_at,
+    this.image_uri,
+    this.provider,
+    this.provider_metadata,
+  });
 
   // To generic JSON for storage
   Map<String, dynamic> toJson() => {
-    'title': this.title,
-    'description': this.description,
-    'last_episode_at': this.last_episode_at.toIso8601String(),
-    'image_uri': this.image_uri,
-    'provider': this.provider,
-    'provider_metadata': this.provider_metadata,
-  };
-
+        'title': this.title,
+        'description': this.description,
+        'last_episode_at': this.last_episode_at.toIso8601String(),
+        'image_uri': this.image_uri,
+        'provider': this.provider,
+        'provider_metadata': this.provider_metadata,
+      };
 
   /// Image cache
   static var images = new HashMap<String, Image>();
@@ -76,21 +75,21 @@ class Show {
     Future<List<Episode>> episodes;
 
     if (json['provider'] == 'spreaker') {
-      episodes = searchSpreakerEpisodesByShow(json['provider_metadata']['show_id'], json['title']);
+      episodes = searchSpreakerEpisodesByShow(
+          json['provider_metadata']['show_id'], json['title']);
     } else {
       throw new InvalidProviderException("Invalid provider");
     }
 
     return Show(
-      title: json['title'],
-      image_uri: image_uri,
-      image: image,
-      // TODO: Update this value when retrieved from JSON?
-      last_episode_at: DateTime.parse(json['last_episode_at']),
-      provider: json['provider'],
-      provider_metadata: json['provider_metadata'],
-      episodes: episodes
-    );
+        title: json['title'],
+        image_uri: image_uri,
+        image: image,
+        // TODO: Update this value when retrieved from JSON?
+        last_episode_at: DateTime.parse(json['last_episode_at']),
+        provider: json['provider'],
+        provider_metadata: json['provider_metadata'],
+        episodes: episodes);
   }
 
   factory Show.fromSpreakerJson(Map<String, dynamic> json) {
@@ -106,13 +105,12 @@ class Show {
       images.putIfAbsent(image_url, () => image);
     }
     return Show(
-      title: json['title'],
-      episodes: searchSpreakerEpisodesByShow(json['show_id'], json['title']),
-      image_uri: image_url,
-      image: image,
-      last_episode_at: DateTime.parse(json['last_episode_at']),
-      provider: 'spreaker',
-      provider_metadata: {'show_id': json['show_id']}
-    );
+        title: json['title'],
+        episodes: searchSpreakerEpisodesByShow(json['show_id'], json['title']),
+        image_uri: image_url,
+        image: image,
+        last_episode_at: DateTime.parse(json['last_episode_at']),
+        provider: 'spreaker',
+        provider_metadata: {'show_id': json['show_id']});
   }
 }
