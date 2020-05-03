@@ -37,6 +37,42 @@ class Episode {
   // Image cache
   static var images = new HashMap<String, Image>();
 
+  // To generic JSON for storage
+  Map<String, dynamic> toJson() => {
+    'title': this.title,
+    'duration': this.duration,
+    'published': this.published.toIso8601String(),
+    'show': this.show,
+    'download_url': this.download_url,
+    'image_uri': this.image_uri
+  };
+
+
+  // From generic Storage JSON
+  factory Episode.fromJson(Map<String, dynamic> json) {
+    String image_uri = json['image_uri'];
+    Image image;
+
+    // Check if we've seen this image before
+    if (images.containsKey(image_uri)) {
+      image = images[image_uri];
+    } else {
+      // If not, load it from the web
+      image = Image.network(image_uri);
+      images.putIfAbsent(image_uri, () => image);
+    }
+    return Episode(
+      title: json['title'],
+      duration: json['duration'],
+      image_uri: image_uri,
+      image: image,
+      published: DateTime.parse(json['published']),
+      show: json['show'],
+      download_url: json['download_url'],
+    );
+  }
+
+  // Factory specifically for data from Spreaker
   factory Episode.fromSpreakerJson(Map<String, dynamic> json) {
     String image_url = json['image_url'];
     Image image;

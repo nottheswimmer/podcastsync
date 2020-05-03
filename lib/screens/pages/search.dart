@@ -68,7 +68,7 @@ class SearchPage extends StatelessWidget {
                     listPadding: EdgeInsets.symmetric(horizontal: 10),
                     onItemFound: (Episode episode, int index) {
                       return episodeTile(_navigationBloc, episode.title,
-                          episode.show, episode.image, episode.toMediaItem());
+                          episode.show, episode.image, episode);
                     }),
               ],
             ),

@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:podcastsync/bloc/bloc-prov.dart';
+import 'package:podcastsync/blocs/pref-bloc.dart';
 import 'package:podcastsync/components/audio.dart';
 import 'package:podcastsync/components/tabs.dart';
 import 'package:podcastsync/screens/navigation-bloc.dart';
 import 'package:podcastsync/screens/pages/home.dart';
 import 'package:podcastsync/screens/pages/library.dart';
 import 'package:podcastsync/screens/pages/search.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Navigation extends StatefulWidget {
   @override
@@ -15,6 +17,8 @@ class Navigation extends StatefulWidget {
 
 class _NavigationState extends State<Navigation> {
   NavigationBloc navigationBloc;
+  PrefBloc prefBloc;
+  SharedPreferences prefs;
 
   @override
   void initState() {
@@ -32,6 +36,7 @@ class _NavigationState extends State<Navigation> {
 
   @override
   Widget build(BuildContext context) {
+    prefBloc = BlocProvider.of(context);
     return BlocProvider(
         bloc: navigationBloc,
         child: DefaultTabController(
@@ -48,7 +53,6 @@ class NavigationScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // final NavigationBloc _navigationBloc = BlocProvider.of(context);
 
     return Scaffold(
       appBar: AppBar(
