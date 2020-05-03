@@ -75,38 +75,6 @@ ListView episodeListView(
       });
 }
 
-ListView episodeListViewWithHeader(
-
-    /// Navigation bloc which provides audio playback controls
-    final NavigationBloc _navigationBloc,
-
-    /// List of episodes that display in the ListView
-    final List<Episode> episodes,
-    final String header) {
-  return ListView.builder(
-      key: PageStorageKey(header),
-      itemCount: episodes.length + 1,
-      itemBuilder: (context, index) {
-        if (index == 0) {
-          // return the header
-          return Padding(
-            padding: const EdgeInsets.only(left: 15, top: 10),
-            child: Text(
-              header,
-              style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.black54),
-            ),
-          );
-        }
-        index -= 1;
-
-        return episodeTile(_navigationBloc, episodes[index].title,
-            episodes[index].show, episodes[index].image, episodes[index]);
-      });
-}
-
 Future<List<Episode>> getRecentlyPlayed() async {
   var prefs = await SharedPreferences.getInstance();
   List<String> episodeStringList = prefs.containsKey('recentlyPlayed')

@@ -106,7 +106,7 @@ class _NavigationBar extends StatelessWidget {
               text: "Home",
             ),
             Tab(icon: Icon(Icons.search), text: "Discover"),
-            Tab(icon: Icon(Icons.library_music), text: "Library"),
+            Tab(icon: Icon(Icons.subscriptions), text: "Library"),
           ],
           labelColor: Colors.black87,
           unselectedLabelColor: Colors.white,

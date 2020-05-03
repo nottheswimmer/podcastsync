@@ -1,4 +1,3 @@
-import 'package:intl/intl.dart';
 import 'package:flappy_search_bar/flappy_search_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:podcastsync/bloc/bloc-prov.dart';
@@ -48,15 +47,8 @@ class SearchPage extends StatelessWidget {
                     headerPadding: EdgeInsets.symmetric(horizontal: 10),
                     listPadding: EdgeInsets.symmetric(horizontal: 10),
                     onItemFound: (Show show, int index) {
-                      String lastEpisodeTimeString = DateFormat.yMd()
-                          .add_jm()
-                          .format(show.last_episode_at.toLocal());
                       return showTile(
                           _navigationBloc,
-                          show.title,
-                          'Last episode at $lastEpisodeTimeString',
-                          show.image,
-                          show.episodes,
                           show,
                           context);
                     }),

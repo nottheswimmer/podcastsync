@@ -9,38 +9,25 @@ import 'package:podcastsync/models/episode.dart';
 import 'package:podcastsync/models/show.dart';
 import 'package:podcastsync/screens/navigation-bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
 Widget showTile(
 
         /// Navigation bloc which provides audio playback controls
         final NavigationBloc _navigationBloc,
-
-        /// The text to display in the show's title area
-        final String title,
-
-        /// The text to display in the show's subtitle area
-        final String subtitle,
-
-        /// The icon to display next to the show
-        final Image icon,
-
-        /// A future which can be awaited to request the episodes of the show
-        final Future<List<Episode>> episodes,
-
-        // I can probably get rid of the other parameters and just use this.
-        //    Needed it for subscriptions.
         final Show show,
 
         /// Build context to pass to the show episodes popup
         final BuildContext context) =>
     ListTile(
-        title: Text(title,
+        title: Text(show.title,
             style: TextStyle(
               fontWeight: FontWeight.w500,
               fontSize: 20,
             )),
-        subtitle: Text(subtitle),
-        leading: icon,
+        subtitle: Text(
+            'Last episode ${timeago.format(show.last_episode_at.toLocal())}'),
+        leading: show.image,
         onTap: () async {
           _navigationBloc.subscribedToCurrentshow = await isSubscribed(show);
 
@@ -50,10 +37,10 @@ Widget showTile(
                   builder: (context) => BlocProvider(
                       bloc: _navigationBloc,
                       child: Scaffold(
-                        appBar: AppBar(title: Text(title)),
+                        appBar: AppBar(title: Text(show.title)),
                         body: SizedBox(
                             child: FutureBuilder<List<Episode>>(
-                                future: episodes,
+                                future: show.episodes,
                                 builder: (context, snapshot) {
                                   if (snapshot.hasData) {
                                     List<Episode> data = snapshot.data;
@@ -95,6 +82,22 @@ Widget showTile(
                       ))));
         });
 
+ListView showListView(
+  /// Navigation bloc which provides audio playback controls
+  final NavigationBloc _navigationBloc,
+
+  /// List of episodes that display in the ListView
+  final List<Show> shows,
+  final PageStorageKey key,
+) {
+  return ListView.builder(
+      key: key,
+      itemCount: shows.length,
+      itemBuilder: (context, index) {
+        return showTile(_navigationBloc, shows[index], context);
+      });
+}
+
 Future<bool> isSubscribed(Show show) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
 
@@ -117,7 +120,6 @@ Future<bool> isSubscribed(Show show) async {
 Future<List<Show>> getSubscriptions() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
 
-  print('getting subscriptions');
   // Store the thing being played in the play history
   if (prefs.containsKey('subscriptions')) {
     List<String> subscriptionStringList = prefs.getStringList('subscriptions');
@@ -125,10 +127,10 @@ Future<List<Show>> getSubscriptions() async {
     List<dynamic> subscriptionJsonList = subscriptionStringList
         .map((e) => jsonDecode(e))
         .toList(growable: false);
-    print('Converted');
     List<Show> subscriptionList =
         subscriptionJsonList.map((e) => Show.fromJson(e)).toList();
-    print('made the map');
+    subscriptionList
+        .sort((a, b) => a.last_episode_at.isBefore(b.last_episode_at) ? 1 : -1);
     return subscriptionList;
   }
   return [];
