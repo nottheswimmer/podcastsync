@@ -17,35 +17,72 @@ class HomePage extends StatelessWidget {
   }
 }
 
-class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
-  _SliverAppBarDelegate({
-    @required this.minHeight,
-    @required this.maxHeight,
-    @required this.child,
-  });
+//class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
+//  _SliverAppBarDelegate({
+//    @required this.minHeight,
+//    @required this.maxHeight,
+//    @required this.child,
+//  });
+//
+//  final double minHeight;
+//  final double maxHeight;
+//  final Widget child;
+//
+//  @override
+//  double get minExtent => minHeight;
+//
+//  @override
+//  double get maxExtent => max(maxHeight, minHeight);
+//
+//  @override
+//  Widget build(
+//      BuildContext context, double shrinkOffset, bool overlapsContent) {
+//    return new SizedBox.expand(child: child);
+//  }
+//
+//  @override
+//  bool shouldRebuild(_SliverAppBarDelegate oldDelegate) {
+//    return maxHeight != oldDelegate.maxHeight ||
+//        minHeight != oldDelegate.minHeight ||
+//        child != oldDelegate.child;
+//  }
+//}
 
-  final double minHeight;
-  final double maxHeight;
-  final Widget child;
+// Displays one Entry. If the entry has children then it's displayed
+// with an ExpansionTile.
+class EntryItem extends StatelessWidget {
+  // The entire multilevel list displayed by this app.
 
-  @override
-  double get minExtent => minHeight;
+  EntryItem(this.entry);
 
-  @override
-  double get maxExtent => max(maxHeight, minHeight);
+  final Entry entry;
 
-  @override
-  Widget build(
-      BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return new SizedBox.expand(child: child);
+  Widget _buildTiles(Entry root) {
+    if (root.children.isEmpty) return ListTile(title: root.widget);
+    return ExpansionTile(
+      key: PageStorageKey<Entry>(root),
+      title: root.widget,
+      initiallyExpanded: root.initiallyExpanded,
+      children: root.children.map(_buildTiles).toList(),
+    );
   }
 
   @override
-  bool shouldRebuild(_SliverAppBarDelegate oldDelegate) {
-    return maxHeight != oldDelegate.maxHeight ||
-        minHeight != oldDelegate.minHeight ||
-        child != oldDelegate.child;
+  Widget build(BuildContext context) {
+    return _buildTiles(entry);
   }
+}
+
+// One entry in the multilevel list displayed by this app.
+class Entry {
+  Entry(
+  this.widget,
+  [this.children = const <Entry>[],
+  this.initiallyExpanded = false]);
+
+  final Widget widget;
+  final List<Entry> children;
+  final bool initiallyExpanded;
 }
 
 class recentlyPlayedWidget extends StatelessWidget {
@@ -57,53 +94,63 @@ class recentlyPlayedWidget extends StatelessWidget {
 
   final NavigationBloc _navigationBloc;
 
-  Future<List<Episode>> getRecentlyPlayed() async {
-    var prefs = await SharedPreferences.getInstance();
-    List<String> episodeStringList = prefs.containsKey('recentlyPlayed')
-        ? prefs.getStringList('recentlyPlayed')
-        : [];
-
-    List<dynamic> episodeJsonList =
-        episodeStringList.map((e) => jsonDecode(e)).toList(growable: false);
-    List<Episode> episodeList =
-        episodeJsonList.map((e) => Episode.fromJson(e)).toList();
-    return episodeList.reversed.toList();
-  }
-
-  SliverPersistentHeader makeHeader(String headerText) {
-    return SliverPersistentHeader(
-      pinned: true,
-      delegate: _SliverAppBarDelegate(
-        minHeight: 60.0,
-        maxHeight: 200.0,
-        child: Container(
-            color: Colors.lightBlue, child: Center(child: Text(headerText))),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-      Container(
-        alignment: Alignment.bottomCenter,
-          child: buildFutureBuilder()),
-    ]);
+    final List<Entry> data = <Entry>[
+      Entry(
+        Text("What's New"),
+        <Entry>[
+          Entry(
+            Container(height: max(MediaQuery.of(context).size.height - 300, 150), child: whatsNewBuilder()),
+          ),
+        ],
+      ),
+      Entry(
+        Text('Recently Played'),
+        <Entry>[
+          Entry(
+            Container(height: max(MediaQuery.of(context).size.height - 300, 150), child: recentlyPlayedBuilder()),
+          ),
+        ],
+      ),
+    ];
+
+    return Scaffold(
+        body: ListView.builder(
+      itemBuilder: (BuildContext context, int index) => EntryItem(data[index]),
+      itemCount: data.length,
+    ));
   }
 
-  FutureBuilder<List<Episode>> buildFutureBuilder() {
+  FutureBuilder<List<Episode>> whatsNewBuilder() {
     return FutureBuilder<List<Episode>>(
-            future: getRecentlyPlayed(),
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                List<Episode> data = snapshot.data;
-                return episodeListViewWithHeader(_navigationBloc, data, "Recently Played");
-              } else if (snapshot.hasError) {
-                return Text("${snapshot.error}");
-              }
-              // By default, show a loading spinner.
-              return CircularProgressIndicator();
-            });
+        future: getLatestFromSubscriptions(),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            List<Episode> data = snapshot.data;
+            return episodeListView(
+                _navigationBloc, data, PageStorageKey('whatsNew'));
+          } else if (snapshot.hasError) {
+            return Text("${snapshot.error}");
+          }
+          // By default, show a loading spinner.
+          return CircularProgressIndicator();
+        });
+  }
+
+  FutureBuilder<List<Episode>> recentlyPlayedBuilder() {
+    return FutureBuilder<List<Episode>>(
+        future: getRecentlyPlayed(),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            List<Episode> data = snapshot.data;
+            return episodeListView(
+                _navigationBloc, data, PageStorageKey('recentlyPlayed'));
+          } else if (snapshot.hasError) {
+            return Text("${snapshot.error}");
+          }
+          // By default, show a loading spinner.
+          return CircularProgressIndicator();
+        });
   }
 }

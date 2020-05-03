@@ -57,6 +57,7 @@ class SearchPage extends StatelessWidget {
                           'Last episode at $lastEpisodeTimeString',
                           show.image,
                           show.episodes,
+                          show,
                           context);
                     }),
                 SearchBar<Episode>(

@@ -6,6 +6,8 @@ import 'package:podcastsync/screens/navigation-events.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class NavigationBloc extends Bloc {
+  bool subscribedToCurrentshow = false;
+
   NavigationBloc() {
     // Stream events sent to the player controller to the _handlePlayerEvent
     //  function
@@ -49,6 +51,8 @@ class NavigationBloc extends Bloc {
       while (AudioService.currentMediaItem != event.mediaItem) {
         await AudioService.skipToNext();
       }
+
+      await AudioService.play();
     }
   }
 
